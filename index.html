@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphabet Choice Challenge</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            text-align: center; 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-card { 
+            width: 100%;
+            max-width: 800px; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 30px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); 
+        }
+
+        /* Teams Section */
+        .teams { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 30px; 
+        }
+
+        .team { 
+            padding: 15px; 
+            border-radius: 20px; 
+            flex: 0 0 45%; 
+            color: white; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .team-a { background: #ff4757; } /* Red */
+        .team-b { background: #2ed573; } /* Green */
+
+        .team h2 { margin: 0; font-size: 1.5rem; letter-spacing: 2px; }
+        .score { font-size: 5rem; font-weight: bold; display: block; margin: 5px 0; }
+        
+        /* Game Display */
+        #big-letter { 
+            font-size: 14rem; 
+            font-weight: bold; 
+            color: #2f3542; 
+            margin: 20px 0; 
+            padding: 10px 60px;
+            border: 8px dashed #dfe4ea; 
+            border-radius: 30px; 
+            display: inline-block; 
+            line-height: 1;
+        }
+
+        .options-container { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px; 
+            margin-top: 20px;
+        }
+
+        .option-btn { 
+            font-size: 6rem; 
+            padding: 10px 80px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 20px; 
+            background: #57606f; 
+            color: white; 
+            transition: all 0.2s ease;
+            box-shadow: 0 6px #2f3542;
+        }
+
+        .option-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px #2f3542;
+        }
+
+        .option-btn:hover { background: #2f3542; }
+        
+        /* Feedback Animation */
+        .correct-pop { 
+            animation: bounce 0.6s; 
+            background: #ffa502 !important; 
+        }
+
+        @keyframes bounce { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.15); } 
+        }
+
+        /* Controls */
+        .controls { 
+            margin-top: 40px; 
+            border-top: 2px solid #f1f2f6; 
+            padding-top: 20px; 
+        }
+
+        .turn-btn {
+            font-size: 1.2rem;
+            margin: 5px;
+            padding: 12px 25px;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            color: white;
+            transition: 0.3s;
+        }
+
+        #turn-indicator {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #747d8c;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-card">
+    <div class="teams">
+        <div class="team team-a">
+            <h2>TEAM A</h2>
+            <span id="scoreA" class="score">0</span>
+        </div>
+        <div class="team team-b">
+            <h2>TEAM B</h2>
+            <span id="scoreB" class="score">0</span>
+        </div>
+    </div>
+
+    <div id="turn-indicator">Currently Playing: Team A</div>
+    <div id="big-letter">?</div>
+    
+    <div class="options-container">
+        <button id="opt1" class="option-btn" onclick="handleChoice(0)">?</button>
+        <button id="opt2" class="option-btn" onclick="handleChoice(1)">?</button>
+    </div>
+
+    <div class="controls">
+        <p><i>Switch team turn before they answer:</i></p>
+        <button class="turn-btn" style="background:#ff4757" onclick="setTurn('A')">Team A's Turn</button>
+        <button class="turn-btn" style="background:#2ed573" onclick="setTurn('B')">Team B's Turn</button>
+    </div>
+</div>
+
+<script>
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    let currentTurn = 'A';
+    let scoreA = 0;
+    let scoreB = 0;
+    let correctAnswer = "";
+
+    function setTurn(team) {
+        currentTurn = team;
+        document.getElementById("turn-indicator").innerText = "Currently Playing: Team " + team;
+    }
+
+    function nextRound() {
+        // 1. Pick a random uppercase letter
+        const target = alphabet[Math.floor(Math.random() * alphabet.length)];
+        correctAnswer = target.toLowerCase();
+        
+        // 2. Pick a random "wrong" letter
+        let wrongAnswer = "";
+        do {
+            wrongAnswer = alphabet[Math.floor(Math.random() * alphabet.length)].toLowerCase();
+        } while (wrongAnswer === correctAnswer);
+
+        // 3. Update the Big Letter display
+        document.getElementById("big-letter").innerText = target;
+        
+        // 4. Shuffle correct/wrong answers for the two buttons
+        const options = [correctAnswer, wrongAnswer].sort(() => Math.random() - 0.5);
+        document.getElementById("opt1").innerText = options[0];
+        document.getElementById("opt2").innerText = options[1];
+        
+        // 5. Reset button UI
+        document.getElementById("opt1").classList.remove("correct-pop");
+        document.getElementById("opt2").classList.remove("correct-pop");
+    }
+
+    function handleChoice(index) {
+        const btnId = index === 0 ? "opt1" : "opt2";
+        const selectedLetter = document.getElementById(btnId).innerText;
+
+        if (selectedLetter === correctAnswer) {
+            // Visual Feedback
+            document.getElementById(btnId).classList.add("correct-pop");
+            
+            // Add Point to current team
+            if (currentTurn === 'A') {
+                scoreA++;
+                document.getElementById("scoreA").innerText = scoreA;
+            } else {
+                scoreB++;
+                document.getElementById("scoreB").innerText = scoreB;
+            }
+            
+            // Wait briefly then move to next round
+            setTimeout(nextRound, 700);
+        } else {
+            alert("Try again! Look for the match.");
+        }
+    }
+
+    // Initialize Game
+    nextRound();
+</script>
+
+</body>
+</html>
